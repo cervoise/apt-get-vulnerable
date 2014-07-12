@@ -1,14 +1,28 @@
+#!/usr/bin/python
+
+#Covered by GPL V2.0
+
 import urllib
 import fileinput
 import re
 import os
 import report
 
+#TODO
+#review folders write after creation
+def init_cache_folders():
+    if os.path.isdir("cache") is False:
+        os.mkdir("cache")
+
+    if os.path.isdir("cache/" + distrib) is False:
+        os.mkdir("cache/" + distrib)
+
+    return os.path.isdir("cache/" + distrib)
 
 #get packet page
 def get_packet_page(packet):
     #try to implement a db with source package to avoid requesting twice the same page
-    packet_page_url = "https://packages.debian.org/" + lang + "/" + distrib + "/"
+    packet_page_url = "https://packages.debian.org/en/" + distrib + "/"
     packet_page_url += packet
     return urllib.urlopen(packet_page_url).read()
 
@@ -123,12 +137,13 @@ def get_update_packet_list_by_source_packet(update_list):
 ###Main###
 
 def main():
-    global lang
     global distrib
 
-    lang = 'fr'
     distrib = 'wheezy'
-    
+    if init_cache_folders() is False:
+        print "Error with cache function"
+        return 1
+        
     packet_list_to_update = get_update_list("upgrade.txt")
     
     packet_list = get_packet_dict("dpkg.txt")
