@@ -1,3 +1,5 @@
+#Covered by GPL V2.0
+
 #write an HTML file
 def export_to_html(output, filename = "Security-update-analysis"):
     html_file = open(filename + ".html", "a+")
@@ -28,7 +30,10 @@ def convert_output_to_html(output, title = "Security update analysis"):
 
     for key in output.keys():
         html_output += "<h2>Source packet: " + key + "</h2>\n"
-        html_output += "<h3>Packet(s): "
+        if len(output[key][0]) > 1:
+            html_output += "<h3>Packets: "
+        else:
+            html_output += "<h3>Packet: "
         for packet in output[key][0]:
             html_output += packet + " "
         html_output += "<h3>\n"
