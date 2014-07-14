@@ -57,9 +57,9 @@ def main():
         print "Error with cache function"
         return 1
     
-    packet_list_to_update = functions.get_update_list("upgrade.txt")
+    packet_list_to_update = functions.get_update_list(firstinput)
     
-    packet_list = functions.get_packet_dict("dpkg.txt")
+    packet_list = functions.get_packet_dict(secondinput)
 
     packet_update_info = []
     for packet in packet_list_to_update:
