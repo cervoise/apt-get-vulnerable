@@ -11,13 +11,13 @@ def get_packet_page(distrib, packet):
     #try to implement a db with source package to avoid requesting twice the same page
     packet_page_url = "https://packages.debian.org/en/" + distrib + "/"
     packet_page_url += packet
-    print packet_page_url
+    #print packet_page_url
     return urllib.urlopen(packet_page_url).read()
 
 def get_source_packet_page(distrib, packet):
     packet_page_url = "https://packages.debian.org/en/source/" + distrib + "/"
     packet_page_url += packet
-    
+    #print packet_page_url
     return urllib.urlopen(packet_page_url).read() 
 
 #get debian official changelog file for a packet and a version

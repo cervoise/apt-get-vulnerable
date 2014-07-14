@@ -2,15 +2,56 @@
 
 #Covered by GPL V2.0
 
+import getopt
+import sys
+
 import functions
 import report
 import cache
+
+def usage():
+    print "apt-get-vulnerable -s system -d distrib -i input-file1  -j input-file2 -o output"
+    print "   input-file1 is the return of 'apt-get --simulate upgrade'"
+    print "   input-file2 is the return of 'dpkg -l'"
+    print ""
+    print "system: debian (default)"
+    print "distrib: squeeze (default), wheezy, jessie"
 
 ###Main###
 
 def main():
 
-    distrib = 'wheezy'
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "s:d:i:j:o:h")
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print str(err) # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+        
+    system = "debian"
+    distrib = "squeeze"
+    firstinput = ""
+    secondinput = ""
+    output = "Security-update-analysis"
+    
+    for o, a in opts:
+        if o in ("-h"):
+            usage()
+            sys.exit()
+        elif o in ("-s"):
+            system = a
+        elif o in ("-d"):
+            distrib = a
+        elif o in ("-i"):
+            firstinput = a
+        elif o in ("-j"):
+            secondinput = a
+        elif o in ("-o"):
+            output = a
+        else:
+            usage()
+            sys.exit()
     
     if cache.init_cache_folders(distrib) is False:
         print "Error with cache function"
@@ -29,4 +70,5 @@ def main():
 
     return report.export_to_html(source_packet_update_info)
     
-main()
+if __name__ == "__main__":
+    main()

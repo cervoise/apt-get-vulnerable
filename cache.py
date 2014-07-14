@@ -24,7 +24,7 @@ def write_cache_file(distrib, source_packet, version):
     #print packet_page
     changelog_url = packet_page.partition("_changelog")[0].rpartition('http://')[2]
     changelog_url = "http://" + changelog_url + "_changelog"
-    
+    #print changelog_url
     changelog_file = open("cache/" + distrib + "/" + source_packet + "_" + version + ".txt",'w')
     changelog_file.write(urllib.urlopen(changelog_url).read())
     return changelog_file.close()
