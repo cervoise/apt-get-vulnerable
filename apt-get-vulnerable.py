@@ -56,7 +56,7 @@ def main():
             usage()
             sys.exit()
         elif o in ("-s"):
-            system = a
+            system = get_system_link(a)
         elif o in ("-d"):
             distrib = a
         elif o in ("-i"):
@@ -68,11 +68,11 @@ def main():
         else:
             usage()
             sys.exit()
-    
-    if cache.init_cache_folders(distrib) is False:
+
+    if cache.init_cache_folders(system, distrib) is False:
         print "Error with cache function"
         return 1
-    
+        
     packet_list_to_update = functions.get_update_list(firstinput)
     packet_list_to_update = system.clean(packet_list_to_update)
     
@@ -80,7 +80,7 @@ def main():
 
     packet_update_info = []
     for packet in packet_list_to_update:
-        #anayse_packet(packet_name, version, update_version)
+    #for packet in packet_list:
         packet_update_info.append(functions.analyse_packet(system, distrib, packet[0], packet_list[packet[0]], packet[1]))
 
     source_packet_update_info = functions.get_update_packet_list_by_source_packet(system, distrib, packet_update_info)
