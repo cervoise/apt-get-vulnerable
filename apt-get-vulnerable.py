@@ -9,12 +9,28 @@ import functions
 import report
 import cache
 
+import debian
+import raspianfast
+
+def get_system_link(system_string):
+    if system_string == 'debian':
+        return debian
+    elif system_string == 'raspianfast':
+        return raspianfast
+    #elif system_string == 'raspian':
+        #return raspina
+    #elif system_string == 'ubuntu':
+        #return ubuntu
+    else:
+        print system_string + " is not supported as a system."
+        return sys.exit()
+
 def usage():
     print "apt-get-vulnerable -s system -d distrib -i input-file1  -j input-file2 -o output"
     print "   input-file1 is the return of 'apt-get --simulate upgrade'"
     print "   input-file2 is the return of 'dpkg -l'"
     print ""
-    print "system: debian (default)"
+    print "system: debian (default), raspianfast"
     print "distrib: squeeze (default), wheezy, jessie"
 
 ###Main###
@@ -58,15 +74,16 @@ def main():
         return 1
     
     packet_list_to_update = functions.get_update_list(firstinput)
+    packet_list_to_update = system.clean(packet_list_to_update)
     
     packet_list = functions.get_packet_dict(secondinput)
 
     packet_update_info = []
     for packet in packet_list_to_update:
         #anayse_packet(packet_name, version, update_version)
-        packet_update_info.append(functions.analyse_packet(distrib, packet[0], packet_list[packet[0]], packet[1]))
+        packet_update_info.append(functions.analyse_packet(system, distrib, packet[0], packet_list[packet[0]], packet[1]))
 
-    source_packet_update_info = functions.get_update_packet_list_by_source_packet(distrib, packet_update_info)
+    source_packet_update_info = functions.get_update_packet_list_by_source_packet(system, distrib, packet_update_info)
 
     return report.export_to_html(source_packet_update_info)
     

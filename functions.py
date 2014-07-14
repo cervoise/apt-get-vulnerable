@@ -6,37 +6,6 @@ import re
 
 import cache
 
-#get packet page
-def get_packet_page(distrib, packet):
-    #try to implement a db with source package to avoid requesting twice the same page
-    packet_page_url = "https://packages.debian.org/en/" + distrib + "/"
-    packet_page_url += packet
-    #print packet_page_url
-    return urllib.urlopen(packet_page_url).read()
-
-def get_source_packet_page(distrib, packet):
-    packet_page_url = "https://packages.debian.org/en/source/" + distrib + "/"
-    packet_page_url += packet
-    #print packet_page_url
-    return urllib.urlopen(packet_page_url).read() 
-
-#get debian official changelog file for a packet and a version
-def get_changelog_file(distrib, packet, version):
-    source_packet = get_source_packet(distrib, packet)
-    
-    return cache.get_cache_file(distrib, source_packet, version)
-
-#get source packet
-def get_source_packet(distrib, packet):
-    packet_page = get_packet_page(distrib, packet)
-    if packet_page.partition('<div id="psource">')[1] == '<div id="psource">':
-        source_packet = packet_page.partition('<div id="psource">')[2].partition('</div>')[0]
-        source_packet = source_packet.partition('>')[2].partition('</a>')[0]
-    else:
-        source_packet = packet
-        
-    return source_packet
-
 #get a list with [packet_name, uptodate_version] from "apt-get --simulate update"
 def get_update_list(filename):
     update_list = []
@@ -45,10 +14,7 @@ def get_update_list(filename):
         if line[0:4] == 'Conf':
             packet_name = line.partition('Conf ')[2].partition(' ')[0]
             packet_version = line.partition('(')[2].partition(' ')[0]
-            ##Raspian specific
-            #update_list.append([packet_name, clean_packet_version(packet_version)])
             update_list.append([packet_name, packet_version])
-            ##End
     return update_list
 
 #get a packet list with [packet_name, version] from "dpkg -l"
@@ -66,16 +32,19 @@ def get_packet_dict(filename):
 
     return packet_dict
 
-def analyse_packet(distrib, packet, actual_version, new_version):
-    changelog_file = get_changelog_file(distrib, packet, new_version).split('\n')
+
+#get changelog file for a packet and a version
+def get_changelog_file(system, distrib, packet, version):
+    source_packet = system.get_source_packet(distrib, packet)
+    
+    return cache.get_cache_file(system, distrib, source_packet, version)
+
+def analyse_packet(system, distrib, packet, actual_version, new_version):
+    changelog_file = get_changelog_file(system, distrib, packet, new_version).split('\n')
     
     packet_changelog = ""
     #escape specifics chars
-    ##Raspian Specific
-    #actual_version_regex = clean_packet_version(actual_version).replace('.', '\.')
-    actual_version_regex = actual_version.replace('.', '\.')
-    ##End
-    actual_version_regex = actual_version_regex.replace('+', '\+')
+    actual_version_regex = system.get_regex(actual_version)
     
     pattern_to_stop = ".*\(" + actual_version_regex + "\).*"
     pattern_for_security = ".*security.*"
@@ -102,12 +71,12 @@ def extract_cve(changelog):
     return cve_string[:-2]
 
 #return a dic with source packet as key from a list with [packet_name, actual_version, new_version, is_security_update, packet_changelog]    
-def get_update_packet_list_by_source_packet(distrib, update_list):
+def get_update_packet_list_by_source_packet(system, distrib, update_list):
     source_packet_update_info = {}
     for packet in update_list:
         #we only keep security update
         if packet[3]:
-            source_packet = get_source_packet(distrib, packet[0])
+            source_packet = system.get_source_packet(distrib, packet[0])
             if source_packet in source_packet_update_info.keys():
                 source_packet_update_info[source_packet][0].append(packet[0])
             else:
