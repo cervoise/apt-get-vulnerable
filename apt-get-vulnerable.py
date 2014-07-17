@@ -45,7 +45,7 @@ def main():
         usage()
         sys.exit(2)
         
-    system = "debian"
+    system = debian
     distrib = "squeeze"
     firstinput = ""
     secondinput = ""
