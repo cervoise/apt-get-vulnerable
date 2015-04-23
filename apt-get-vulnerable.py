@@ -85,7 +85,7 @@ def main():
 
     source_packet_update_info = functions.get_update_packet_list_by_source_packet(system, distrib, packet_update_info)
 
-    return report.export_to_html(source_packet_update_info)
+    return report.export_to_html(source_packet_update_info, output)
     
 if __name__ == "__main__":
     main()
