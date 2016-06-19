@@ -72,7 +72,12 @@ def main():
     if cache.init_cache_folders(system, distrib) is False:
         print "Error with cache function"
         return 1
-        
+
+    if not firstinput or not secondinput:
+        print "Params i and j are mandatory"
+        usage()
+        sys.exit()
+
     packet_list_to_update = functions.get_update_list(firstinput)
     packet_list_to_update = system.clean(packet_list_to_update)
     
@@ -85,7 +90,7 @@ def main():
 
     source_packet_update_info = functions.get_update_packet_list_by_source_packet(system, distrib, packet_update_info)
 
-    return report.export_to_html(source_packet_update_info)
+    return report.export_to_html(source_packet_update_info, output)
     
 if __name__ == "__main__":
     main()
